@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: le-cron
+  annotations:
+    description: "Deploys LetsEncrypt Cronjob"
+
+parameters:
+- name: NAME
+  description: "Name of the Cronjob"
+  value: le-cron
+- name: LEHOSTNAME
+  description: "Hostname to generate certificates for eg. 'app.example.com'. set to 'auto' for autodiscovery"
+  value: auto
+- name: SCHEDULE
+  description: "Schedule for running the cronjob, eg. '0 3 * * *'"
+  value: "0 3 * * *"
+- name: ENVIRONMENT
+  description: "LetsEncrypt Environment setting 'staging' or 'production'"
+  value: staging
+- name: FORCEHTTPS
+  description: "Force http requests to https (true/false)"
+  value: "false"
+- name: DEBUG
+  description: "Enable debugging mode, this will prevent the cronjob container from exiting"
+  value: "false"
+
+
+objects:
+- apiVersion: batch/v1beta1
+  kind: CronJob
+  metadata:
+    name: ${NAME}
+  spec:
+    schedule: ${SCHEDULE}
+    jobTemplate:
+      spec:
+        template:
+          metadata:
+            labels:
+              app: ${NAME}
+          spec:
+            serviceAccount: letsencrypt
+            containers:
+            - name: ${NAME}
+              image: npohosting/le-cron:latest
+              imagePullPolicy: Always
+              env:
+              - name: NAME
+                value: ${NAME}
+              - name: LEHOSTNAME
+                value: ${LEHOSTNAME}
+              - name: LEENV
+                value: ${ENVIRONMENT}
+              - name: FORCEHTTPS
+                value: ${FORCEHTTPS}
+              - name: DEBUG
+                value: ${DEBUG}
+            restartPolicy: OnFailure
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: Exposes and load balances the application pods
+    creationTimestamp: null
+    labels:
+      app: ${NAME}
+    name: ${NAME}
+  spec:
+    ports:
+    - name: web
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: ${NAME}
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
