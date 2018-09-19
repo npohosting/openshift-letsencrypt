@@ -7,7 +7,7 @@ The project you run this cronjob in needs to have a 'letsencrypt' service accoun
 You can create this through the following commands : \
 ``$ PROJECT=<project>`` \
 ``$ oc create sa letsencrypt`` \
-``$ oc adm policy add-role-to-user edit system:serviceaccount:$PROJECT:letsencrypt`` \
+``$ oc adm policy add-role-to-user edit system:serviceaccount:$PROJECT:letsencrypt`` 
 
 ## Usage
 you can use ``$ oc process`` to generate a personalised template with your own needed settings. \
