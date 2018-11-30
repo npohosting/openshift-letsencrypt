@@ -17,6 +17,7 @@ RUN echo "## Install Basic Tools" \
             ca-certificates \
             jq \
             nginx \
+            coreutils \
     && echo "## Install glibc" \
     && curl -s -L -o /tmp/glibc-${GLIBC_VERSION}.apk ${GLIBC_URL}/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk \
     && curl -s -L -o /tmp/glibc-bin-${GLIBC_VERSION}.apk ${GLIBC_URL}/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk \
